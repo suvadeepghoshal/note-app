@@ -5,6 +5,10 @@
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.0-beta.2",
     "@popperjs/core": "^2.11.8",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.2",
@@ -15,10 +19,11 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.1",
-    "sass": "^1.69.6"
+    "sass": "^1.69.6",
+    "typescript": "^5.3.3"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=/assets",
+    "build": "esbuild app/javascript/entrypoints/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
     "build:css:compile": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules",
     "build:css:prefix": "postcss ./app/assets/builds/application.css --use=autoprefixer --output=./app/assets/builds/application.css",
     "build:css": "yarn build:css:compile && yarn build:css:prefix",
