@@ -10,8 +10,12 @@ Rails.application.routes.draw do
   root "homepage#index"
   namespace :api do
     namespace :v1 do
-      resources :notes
+      resources :notes, only: [:index, :create]
       resources :tags
     end
   end
+
+  get "/(*path)", to: "homepage#index", constraints: lambda { |request|
+    !request.xhr? && request.format.html?
+  }
 end
