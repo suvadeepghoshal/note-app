@@ -3,7 +3,6 @@ import React from "react";
 
 export default function Layout() {
     const location = useLocation();
-    console.log(location);
     return (
         <div>
             <nav className="navbar navbar-expand-lg bg-body-tertiary">
