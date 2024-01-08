@@ -1,7 +1,7 @@
 class Api::V1::NotesController < ApplicationController
   def index
     @notes = Note.all
-    render json: @notes, status: :ok
+    render json: @notes.as_json(include: :tags), status: :ok
   end
 
   def create
@@ -11,8 +11,11 @@ class Api::V1::NotesController < ApplicationController
         :ok
     else
       note = Note.new(note_params)
+      tag_names = params[:tag_names] || []
+      tags = tag_names.map { |tag_name| Tag.find_or_create_by(name: tag_name) }
+      note.tags << tags # appending tags
       if note.save
-        render json: note, status:
+        render json: note.as_json(include: :tags), status:
           :created
       else
         render json: note.errors
