@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {NoteRS} from "../lib/types/NoteRS";
 import axios from "axios";
 import {
-    Button,
+    Button, CardColumns,
     Form,
     FormFeedback,
     FormGroup,
@@ -11,17 +11,20 @@ import {
     Modal,
     ModalBody,
     ModalFooter,
-    ModalHeader
+    ModalHeader, Row
 } from "reactstrap";
 import {SubmitHandler, useForm} from "react-hook-form";
+import {NoteRQ} from "../lib/types/NoteRQ";
+import {Tag} from "../lib/types/Tag";
 
 export default function Note() {
     const [notes, setNotes] = useState<NoteRS[]>([]);
     const [modal, setModal] = useState(false);
-    type Input = { title: string, content: string }
-    const {register, handleSubmit, formState: {errors}, watch} = useForm<Input>();
+    const {register, handleSubmit, formState: {errors}} = useForm<NoteRQ>({
+        defaultValues: {title: "", content: ""}
+    });
 
-    const onSubmit: SubmitHandler<Input> = data => {
+    const onSubmit: SubmitHandler<NoteRQ> = data => {
         console.log("coming inside");
         try {
             console.log(data);
@@ -31,6 +34,7 @@ export default function Note() {
     }
 
     const toggle = () => setModal(!modal);
+
     useEffect(() => {
         console.log("Note component mounted");
         const fetchNotes = async () => {
@@ -51,7 +55,13 @@ export default function Note() {
         <div className="card" style={{width: "18rem"}} key={note.id}>
             <div className="card-body">
                 <h5 className="card-title">{note.title}</h5>
-                <h6 className="card-subtitle mb-2 text-body-secondary">Tags will be added later</h6>
+                <div className={"row"}>
+                    {note.tags && note.tags.map((tag: Tag) =>
+                        <h6 className="card-subtitle mb-2 text-body-secondary col-2" key={tag.id}>
+                            <span className="badge rounded-pill text-bg-secondary">{tag.name}</span>
+                        </h6>
+                    )}
+                </div>
                 <p className="card-text">{note.content}</p>
                 <a href="#" className="card-link">Edit</a>
                 <a href="#" className="card-link">Delete</a>
@@ -64,19 +74,15 @@ export default function Note() {
         </button>
     );
 
-    const handleCreateNote = () => {
-        console.log("button clicked");
-    };
-
     const CreateNote = () => <Modal isOpen={modal} toggle={toggle} className="modal-dialog modal-dialog-centered">
         <ModalHeader toggle={toggle} close={closeBtn}>
             Note Information
         </ModalHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
             <ModalBody>
                 <FormGroup>
                     <Label for="title">Title</Label>
-                    <Input id="note_name" {...register("title", {required: "Title is required", maxLength: 20})}/>
+                    <Input id="title" {...register("title", {required: "Title is required", maxLength: 20})}/>
                     {errors.title?.type === "required" && <FormFeedback>
                         {errors.title?.message}
                     </FormFeedback>}
@@ -84,7 +90,7 @@ export default function Note() {
                 <FormGroup>
                     <Label for="content">Content</Label>
                     <Input
-                        id="note_content"
+                        id="content"
                         type="textarea"
                         {...register("content", {required: "Content is required"})}
                     />
@@ -101,7 +107,7 @@ export default function Note() {
                     Cancel
                 </Button>
             </ModalFooter>
-        </form>
+        </Form>
     </Modal>
 
     return (
@@ -110,7 +116,13 @@ export default function Note() {
             <Button color="primary" className="mb-4 float-end" onClick={toggle}>
                 Create Note
             </Button>
-            {notes.map(note => <NoteCard key={note.id} note={note}/>)}
+            <Row>
+                {notes.map(note =>
+                    <CardColumns className={"m-2"}>
+                        <NoteCard key={note.id} note={note}/>
+                    </CardColumns>
+                )}
+            </Row>
         </div>
 
     );
