@@ -16,6 +16,7 @@ import {
 import {SubmitHandler, useForm} from "react-hook-form";
 import {NoteRQ} from "../lib/types/NoteRQ";
 import {Tag} from "../lib/types/Tag";
+import {Link} from "react-router-dom";
 
 export default function Note() {
     const [notes, setNotes] = useState<NoteRS[]>([]);
@@ -23,9 +24,9 @@ export default function Note() {
     const {register, handleSubmit, formState: {errors}} = useForm<NoteRQ>({
         defaultValues: {title: "", content: ""}
     });
+    const [hover, setHover] = useState(false);
 
     const onSubmit: SubmitHandler<NoteRQ> = data => {
-        console.log("coming inside");
         try {
             console.log(data);
         } catch (error) {
@@ -51,14 +52,24 @@ export default function Note() {
         }
     }, []);
 
+    const toggleHover = () => setHover(!hover);
+
+    const style: { backgroundColor: string } | {
+        color: string
+    } = hover ? {backgroundColor: "rgb(25, 135, 84) !important"} : {color: "initial"};
+
     const NoteCard = ({note}: { note: NoteRS }) => (
         <div className="card" style={{width: "18rem"}} key={note.id}>
             <div className="card-body">
                 <h5 className="card-title">{note.title}</h5>
                 <div className={"row"}>
                     {note.tags && note.tags.map((tag: Tag) =>
-                        <h6 className="card-subtitle mb-2 text-body-secondary col-2" key={tag.id}>
-                            <span className="badge rounded-pill text-bg-secondary">{tag.name}</span>
+                        <h6 className="card-subtitle mb-2 text-body-secondary col-2" key={tag.id}
+                            onMouseEnter={toggleHover} onMouseLeave={toggleHover}>
+                            <Link
+                                className="badge rounded-pill text-bg-secondary text-decoration-none"
+                                style={style}
+                                to={`/tag/${tag.id}`}>{tag.name}</Link>
                         </h6>
                     )}
                 </div>
@@ -74,40 +85,40 @@ export default function Note() {
         </button>
     );
 
-    const CreateNote = () => <Modal isOpen={modal} toggle={toggle} className="modal-dialog modal-dialog-centered">
-        <ModalHeader toggle={toggle} close={closeBtn}>
+    const CreateNote = () => <Modal isOpen={modal} className="modal-dialog modal-dialog-centered">
+        <ModalHeader close={closeBtn}>
             Note Information
         </ModalHeader>
-        <Form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate={true}>
             <ModalBody>
-                <FormGroup>
-                    <Label for="title">Title</Label>
-                    <Input id="title" {...register("title", {required: "Title is required", maxLength: 20})}/>
-                    {errors.title?.type === "required" && <FormFeedback>
-                        {errors.title?.message}
-                    </FormFeedback>}
-                </FormGroup>
-                <FormGroup>
-                    <Label for="content">Content</Label>
-                    <Input
-                        id="content"
-                        type="textarea"
-                        {...register("content", {required: "Content is required"})}
-                    />
-                    {errors.content && <FormFeedback>
-                        {errors.content.message}
-                    </FormFeedback>}
-                </FormGroup>
+                <div className="mb-3">
+                    <label htmlFor="title" className="form-label">Title</label>
+                    <input className="form-control" id="title" aria-describedby={"titleHelp"}
+                           {...register("title", {
+                               required: {value: true, message: "Title is required"},
+                               maxLength: {value: 20, message: "Maximum accepted length is 20"}
+                           })}/>
+                    <div id="titleHelp" className="form-text">Title has a character limitation of 20</div>
+                    {errors.title &&
+                        <div className="invalid-feedback" style={{display: "block"}}>{errors.title?.message}</div>}
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="content" className="form-label">Content</label>
+                    <textarea className="form-control" id="content" rows={5} {...register("content", {
+                        required: {value: true, message: "Content is required"},
+                    })}/>
+                    {errors.content &&
+                        <div className="invalid-feedback"
+                             style={{display: "block"}}>{errors.content?.message}</div>}
+                </div>
+
             </ModalBody>
             <ModalFooter>
-                <Button color="success" type="submit">
-                    Create
-                </Button>{' '}
-                <Button color="danger" onClick={toggle}>
-                    Cancel
-                </Button>
+                <button type="submit" className="btn btn-success">Create</button>
+                {' '}
+                <button className="btn btn-danger" onClick={toggle}>Cancel</button>
             </ModalFooter>
-        </Form>
+        </form>
     </Modal>
 
     return (
@@ -118,8 +129,8 @@ export default function Note() {
             </Button>
             <Row>
                 {notes.map(note =>
-                    <CardColumns className={"m-2"}>
-                        <NoteCard key={note.id} note={note}/>
+                    <CardColumns className={"m-2"} key={note.id}>
+                        <NoteCard note={note}/>
                     </CardColumns>
                 )}
             </Row>
