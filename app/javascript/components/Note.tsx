@@ -1,40 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {NoteRS} from "../lib/types/NoteRS";
 import axios from "axios";
-import {
-    Button, CardColumns,
-    Form,
-    FormFeedback,
-    FormGroup,
-    Input,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader, Row
-} from "reactstrap";
-import {SubmitHandler, useForm} from "react-hook-form";
-import {NoteRQ} from "../lib/types/NoteRQ";
+import {CardColumns, Row} from "reactstrap";
 import {Tag} from "../lib/types/Tag";
 import {Link} from "react-router-dom";
+import CreateModal from "./CreateModal";
 
 export default function Note() {
     const [notes, setNotes] = useState<NoteRS[]>([]);
-    const [modal, setModal] = useState(false);
-    const {register, handleSubmit, formState: {errors}} = useForm<NoteRQ>({
-        defaultValues: {title: "", content: ""}
-    });
     const [hover, setHover] = useState(false);
-
-    const onSubmit: SubmitHandler<NoteRQ> = data => {
-        try {
-            console.log(data);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const toggle = () => setModal(!modal);
 
     useEffect(() => {
         console.log("Note component mounted");
@@ -80,53 +54,9 @@ export default function Note() {
         </div>
     );
 
-    const closeBtn = (
-        <button className="btn-close" onClick={toggle} type="button">
-        </button>
-    );
-
-    const CreateNote = () => <Modal isOpen={modal} className="modal-dialog modal-dialog-centered">
-        <ModalHeader close={closeBtn}>
-            Note Information
-        </ModalHeader>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate={true}>
-            <ModalBody>
-                <div className="mb-3">
-                    <label htmlFor="title" className="form-label">Title</label>
-                    <input className="form-control" id="title" aria-describedby={"titleHelp"}
-                           {...register("title", {
-                               required: {value: true, message: "Title is required"},
-                               maxLength: {value: 20, message: "Maximum accepted length is 20"}
-                           })}/>
-                    <div id="titleHelp" className="form-text">Title has a character limitation of 20</div>
-                    {errors.title &&
-                        <div className="invalid-feedback" style={{display: "block"}}>{errors.title?.message}</div>}
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="content" className="form-label">Content</label>
-                    <textarea className="form-control" id="content" rows={5} {...register("content", {
-                        required: {value: true, message: "Content is required"},
-                    })}/>
-                    {errors.content &&
-                        <div className="invalid-feedback"
-                             style={{display: "block"}}>{errors.content?.message}</div>}
-                </div>
-
-            </ModalBody>
-            <ModalFooter>
-                <button type="submit" className="btn btn-success">Create</button>
-                {' '}
-                <button className="btn btn-danger" onClick={toggle}>Cancel</button>
-            </ModalFooter>
-        </form>
-    </Modal>
-
     return (
         <div className="container m-4">
-            <CreateNote/>
-            <Button color="primary" className="mb-4 float-end" onClick={toggle}>
-                Create Note
-            </Button>
+            <CreateModal/>
             <Row>
                 {notes.map(note =>
                     <CardColumns className={"m-2"} key={note.id}>
