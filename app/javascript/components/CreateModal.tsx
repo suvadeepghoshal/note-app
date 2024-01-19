@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {SubmitHandler, useFieldArray, useForm} from "react-hook-form";
 import {NoteRQ} from "../lib/types/NoteRQ";
+import {Tag} from "../lib/types/Tag"
+import axios from "axios";
 
 const CreateModal = () => {
     const [modal, setModal] = useState(false);
@@ -9,12 +11,30 @@ const CreateModal = () => {
         defaultValues: {title: "", content: "", tags: [{name: "enter tag"}]}
     });
     const {fields, append, remove} = useFieldArray({
-        control, name: "tags", rules: {maxLength: 5, minLength: 1}
-    })
+        control, name: "tags", rules: {
+            required: {
+                value: true, message: "At least a tag is required"
+            }
+        }
+    });
+    
 
-    const onSubmit: SubmitHandler<NoteRQ> = data => {
+    const onSubmit: SubmitHandler<NoteRQ> = async (data) => {
         try {
-            console.log(data);
+            const reqObj = {
+                note: {
+                  title: data.title,
+                  content: data.content
+                },
+                tag_names: data.tags.map(tag => tag.name)
+            };
+            console.log(reqObj);
+            const response = await axios.post('api/v1/notes', reqObj, {
+                headers: {
+                    'X-CSRF-Token': document.querySelector(`meta[name="csrf-token"]`)?.getAttribute('content'),
+                }
+            });
+            console.log(response);        
         } catch (error) {
             console.error(error);
         }
@@ -58,12 +78,7 @@ const CreateModal = () => {
                             return <div key={field.id} className={"row g-3 mb-1"}>
                                 <div className={"col-md-6"}>
                                     <input className={"form-control"}
-                                           {...register(`tags.${index}.name`, {
-                                               maxLength: {
-                                                   value: 10,
-                                                   message: "Maximum accepted length is 10"
-                                               }
-                                           })}/>
+                                           {...register(`tags.${index}.name`)}/>
                                 </div>
                                 <div className={"col-md-6"}>
                                     <div className={"d-grid gap-2 d-md-flex justify-content"}>
@@ -80,9 +95,8 @@ const CreateModal = () => {
                             </div>
                         })}
                         <div id="tagsHelp" className="form-text">Click +/- to add/remove more relevant tags</div>
-                        {errors.tags &&
-                            <div className="invalid-feedback"
-                                 style={{display: "block"}}>{errors.tags?.message}</div>}
+                        <div className="invalid-feedback"
+                             style={{display: "block"}}>{errors?.tags?.message}</div>
                     </div>
                 </ModalBody>
                 <ModalFooter>
