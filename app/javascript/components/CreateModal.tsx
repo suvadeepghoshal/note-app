@@ -1,8 +1,7 @@
 import React, {useState} from "react";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {SubmitHandler, useFieldArray, useForm} from "react-hook-form";
 import {NoteRQ} from "../lib/types/NoteRQ";
-import {Tag} from "../lib/types/Tag"
 import axios from "axios";
 import { NoteRS } from "../lib/types/NoteRS";
 
@@ -42,12 +41,12 @@ const CreateModal = () => {
             }).then(response => {
                 const result: NoteRS = response.data
                 if (result?.type === "error") setAlertProp({
-                    alertType: "alert alert-danger",
+                    alertType: "danger",
                     alertMessage: result?.message!
                 });
             }).catch(error => {
                 setAlertProp({
-                    alertType: "alert alert-danger",
+                    alertType: "danger",
                     alertMessage: error?.message!
                 });
             });
@@ -56,7 +55,7 @@ const CreateModal = () => {
         } catch (error: any) {
             console.error(error);
             setAlertProp({
-                alertType: "alert alert-danger",
+                alertType: "danger",
                 alertMessage: error
             });
         }
@@ -75,7 +74,7 @@ const CreateModal = () => {
             <form onSubmit={handleSubmit(onSubmit)} noValidate={true}>
                 <ModalBody>
                     <div className="mb-3">
-                        {alertProp.alertType.length > 0 && <div className={alertProp.alertType} role="alert">{alertProp.alertMessage}</div>}
+                        {alertProp.alertType.length > 0 && <Alert color={alertProp.alertType}>{alertProp.alertMessage}</Alert>}
                         <label htmlFor="title" className="form-label">Title</label>
                         <input className="form-control" id="title" aria-describedby={"titleHelp"}
                                {...register("title", {
