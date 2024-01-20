@@ -34,5 +34,8 @@
   },
   "browserslist": [
     "defaults"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "3.2.4"
+  }
 }
