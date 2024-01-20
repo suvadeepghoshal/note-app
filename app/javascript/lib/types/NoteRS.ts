@@ -6,5 +6,7 @@ export interface NoteRS {
     content: string;
     created_at: string;
     updated_at: string;
-    tags: Tag[]
+    tags: Tag[];
+    message?: string;
+    type?: string
 }

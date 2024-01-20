@@ -4,12 +4,19 @@ import {SubmitHandler, useFieldArray, useForm} from "react-hook-form";
 import {NoteRQ} from "../lib/types/NoteRQ";
 import {Tag} from "../lib/types/Tag"
 import axios from "axios";
+import { NoteRS } from "../lib/types/NoteRS";
 
 const CreateModal = () => {
     const [modal, setModal] = useState(false);
+    const [alertProp, setAlertProp] = useState({
+        alertType: "",
+        alertMessage: "",
+    });
+    
     const {register, handleSubmit, formState: {errors}, control} = useForm<NoteRQ>({
         defaultValues: {title: "", content: "", tags: [{name: "enter tag"}]}
     });
+    
     const {fields, append, remove} = useFieldArray({
         control, name: "tags", rules: {
             required: {
@@ -19,7 +26,7 @@ const CreateModal = () => {
     });
     
 
-    const onSubmit: SubmitHandler<NoteRQ> = async (data) => {
+    const onSubmit: SubmitHandler<NoteRQ> = (data) => {
         try {
             const reqObj = {
                 note: {
@@ -28,15 +35,30 @@ const CreateModal = () => {
                 },
                 tag_names: data.tags.map(tag => tag.name)
             };
-            console.log(reqObj);
-            const response = await axios.post('api/v1/notes', reqObj, {
+            axios.post('api/v1/notes', reqObj, {
                 headers: {
                     'X-CSRF-Token': document.querySelector(`meta[name="csrf-token"]`)?.getAttribute('content'),
                 }
+            }).then(response => {
+                const result: NoteRS = response.data
+                if (result?.type === "error") setAlertProp({
+                    alertType: "alert alert-danger",
+                    alertMessage: result?.message!
+                });
+            }).catch(error => {
+                setAlertProp({
+                    alertType: "alert alert-danger",
+                    alertMessage: error?.message!
+                });
             });
-            console.log(response);        
-        } catch (error) {
+            // TODO: close the modal, show success alert on the modal and when the user close the modal then revalidate the notes page to show the notes that got added
+            
+        } catch (error: any) {
             console.error(error);
+            setAlertProp({
+                alertType: "alert alert-danger",
+                alertMessage: error
+            });
         }
     }
     const toggle = () => setModal(!modal);
@@ -53,6 +75,7 @@ const CreateModal = () => {
             <form onSubmit={handleSubmit(onSubmit)} noValidate={true}>
                 <ModalBody>
                     <div className="mb-3">
+                        {alertProp.alertType.length > 0 && <div className={alertProp.alertType} role="alert">{alertProp.alertMessage}</div>}
                         <label htmlFor="title" className="form-label">Title</label>
                         <input className="form-control" id="title" aria-describedby={"titleHelp"}
                                {...register("title", {
