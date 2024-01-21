@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Alert,
   Button,
+  CloseButton,
   Modal,
   ModalBody,
   ModalFooter,
@@ -75,7 +76,6 @@ const CreateModal = () => {
             alertMessage: error?.message!,
           });
         });
-      // TODO: close the modal, show success alert on the modal and when the user close the modal then revalidate the notes page to show the notes that got added
     } catch (error: any) {
       console.error(error);
       setAlertProp({
@@ -88,7 +88,14 @@ const CreateModal = () => {
   const toggle = () => setModal(!modal);
 
   const closeBtn = (
-    <button className="btn-close" onClick={toggle} type="button"></button>
+    <button
+      className="btn-close"
+      onClick={() => {
+        dispatch(fetchNotesService());
+        toggle();
+      }}
+      type="button"
+    ></button>
   );
 
   return (
@@ -197,20 +204,19 @@ const CreateModal = () => {
             <button type="submit" className="btn btn-success">
               Create
             </button>{' '}
-            <button className="btn btn-danger" onClick={toggle}>
+            <button
+              className="btn btn-danger"
+              onClick={() => {
+                dispatch(fetchNotesService());
+                toggle();
+              }}
+            >
               Cancel
             </button>
           </ModalFooter>
         </form>
       </Modal>
-      <Button
-        color="primary"
-        className="mb-4 float-end"
-        onClick={() => {
-          dispatch(fetchNotesService());
-          toggle();
-        }}
-      >
+      <Button color="primary" className="mb-4 float-end" onClick={toggle}>
         Create Note
       </Button>
     </div>
