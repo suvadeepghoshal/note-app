@@ -11,6 +11,9 @@ import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { NoteRQ } from '../lib/types/NoteRQ';
 import axios from 'axios';
 import { NoteRS } from '../lib/types/NoteRS';
+import { useDispatch } from 'react-redux';
+import { fetchNotesService } from '../services/fetchNotesService';
+import { AppDispatch } from '../lib/redux/store';
 
 const CreateModal = () => {
   const [modal, setModal] = useState(false);
@@ -38,6 +41,8 @@ const CreateModal = () => {
       },
     },
   });
+
+  const dispatch: AppDispatch = useDispatch();
 
   const onSubmit: SubmitHandler<NoteRQ> = (data) => {
     try {
@@ -79,7 +84,9 @@ const CreateModal = () => {
       });
     }
   };
+
   const toggle = () => setModal(!modal);
+
   const closeBtn = (
     <button className="btn-close" onClick={toggle} type="button"></button>
   );
@@ -196,7 +203,14 @@ const CreateModal = () => {
           </ModalFooter>
         </form>
       </Modal>
-      <Button color="primary" className="mb-4 float-end" onClick={toggle}>
+      <Button
+        color="primary"
+        className="mb-4 float-end"
+        onClick={() => {
+          dispatch(fetchNotesService());
+          toggle();
+        }}
+      >
         Create Note
       </Button>
     </div>

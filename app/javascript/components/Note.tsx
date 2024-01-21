@@ -1,34 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { NoteRS } from '../lib/types/NoteRS';
-import axios from 'axios';
 import { CardColumns, Row } from 'reactstrap';
 import { Tag } from '../lib/types/Tag';
 import { Link } from 'react-router-dom';
 import CreateModal from './CreateModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../lib/redux/store';
+import { fetchNotesService } from '../services/fetchNotesService';
 
 export default function Note() {
-  const [notes, setNotes] = useState<NoteRS[]>([]);
+  // const [notes, setNotes] = useState<NoteRS[]>([]);
   const [hover, setHover] = useState(false);
+
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     console.log('Note component mounted');
-    const fetchNotes = async () => {
-      try {
-        const response = await axios.get('/api/v1/notes');
-        return response.status === 200 ? response.data : [];
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchNotes()
-      .then((data) => setNotes(data))
-      .catch((error) => console.log(error));
+    dispatch(fetchNotesService());
     return () => {
       console.log('Note component unmounted');
     };
   }, []);
 
   const toggleHover = () => setHover(!hover);
+
+  const notes: NoteRS[] = useSelector((state: RootState) => state.notes);
 
   const style:
     | { backgroundColor: string }
