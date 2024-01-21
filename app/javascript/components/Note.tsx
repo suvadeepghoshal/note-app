@@ -9,7 +9,6 @@ import { AppDispatch, RootState } from '../lib/redux/store';
 import { fetchNotesService } from '../services/fetchNotesService';
 
 export default function Note() {
-  // const [notes, setNotes] = useState<NoteRS[]>([]);
   const [hover, setHover] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
