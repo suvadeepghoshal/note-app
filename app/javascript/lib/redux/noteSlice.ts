@@ -21,12 +21,11 @@ export const noteSlice = createSlice({
   initialState,
   reducers: {
     fetchNotes: (state, action) => {
-      return {
-        ...state,
-        notes: action.payload,
-      };
+      return { ...state, notes: action.payload };
     },
-    createNote: (_state, _action) => {},
+    createNote: (state, action) => {
+      return { ...state, notes: [...state.notes, action.payload] };
+    },
     editNote: (_state, _action) => {},
     deleteNote: (_state, _action) => {},
   },

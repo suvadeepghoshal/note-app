@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Alert,
   Button,
-  CloseButton,
   Modal,
   ModalBody,
   ModalFooter,
@@ -10,24 +9,23 @@ import {
 } from 'reactstrap';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { NoteRQ } from '../lib/types/NoteRQ';
-import axios from 'axios';
-import { NoteRS } from '../lib/types/NoteRS';
 import { useDispatch } from 'react-redux';
 import { fetchNotesService } from '../services/fetchNotesService';
 import { AppDispatch } from '../lib/redux/store';
+import { createNoteService } from '../services/createNoteService';
+import { AlertProp } from '../lib/types/AlertProp';
 
+const alertInitialPropVal: AlertProp = { alertType: '', alertMessage: '' };
 const CreateModal = () => {
   const [modal, setModal] = useState(false);
-  const [alertProp, setAlertProp] = useState({
-    alertType: '',
-    alertMessage: '',
-  });
+  const [alertProp, setAlertProp] = useState(alertInitialPropVal);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
+    reset,
   } = useForm<NoteRQ>({
     defaultValues: { title: '', content: '', tags: [{ name: 'enter tag' }] },
   });
@@ -45,42 +43,24 @@ const CreateModal = () => {
 
   const dispatch: AppDispatch = useDispatch();
 
-  const onSubmit: SubmitHandler<NoteRQ> = (data) => {
+  const onSubmit: SubmitHandler<NoteRQ> = async (data) => {
     try {
-      const reqObj = {
-        note: {
-          title: data.title,
-          content: data.content,
-        },
-        tag_names: data.tags.map((tag) => tag.name),
-      };
-      axios
-        .post('api/v1/notes', reqObj, {
-          headers: {
-            'X-CSRF-Token': document
-              .querySelector(`meta[name="csrf-token"]`)
-              ?.getAttribute('content'),
-          },
-        })
-        .then((response) => {
-          const result: NoteRS = response.data;
-          if (result?.type === 'error')
-            setAlertProp({
-              alertType: 'danger',
-              alertMessage: result?.message!,
-            });
-        })
-        .catch((error) => {
-          setAlertProp({
-            alertType: 'danger',
-            alertMessage: error?.message!,
-          });
+      const response = await dispatch(createNoteService(data));
+      if (response?.type === 'error')
+        setAlertProp({
+          alertType: 'danger',
+          alertMessage: response?.message,
+        });
+      else
+        setAlertProp({
+          alertType: 'success',
+          alertMessage: response?.message,
         });
     } catch (error: any) {
-      console.error(error);
       setAlertProp({
         alertType: 'danger',
-        alertMessage: error,
+        alertMessage:
+          typeof error == 'string' ? error : 'Unable to create note.',
       });
     }
   };
@@ -92,6 +72,8 @@ const CreateModal = () => {
       className="btn-close"
       onClick={() => {
         dispatch(fetchNotesService());
+        reset();
+        setAlertProp(alertInitialPropVal);
         toggle();
       }}
       type="button"
@@ -206,8 +188,11 @@ const CreateModal = () => {
             </button>{' '}
             <button
               className="btn btn-danger"
+              type="button"
               onClick={() => {
                 dispatch(fetchNotesService());
+                reset();
+                setAlertProp(alertInitialPropVal);
                 toggle();
               }}
             >

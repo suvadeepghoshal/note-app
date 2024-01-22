@@ -71,7 +71,7 @@ export default function Note() {
     <div className="container m-4">
       <CreateModal />
       <Row>
-        {notes.map((note) => (
+        {notes.map((note: NoteRS) => (
           <CardColumns className={'m-2'} key={note.id}>
             <NoteCard note={note} />
           </CardColumns>
