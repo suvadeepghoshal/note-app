@@ -1,38 +1,88 @@
-import React, {useEffect} from "react";
-import {NoteRS} from "../lib/types/NoteRS";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { NoteRS } from '../lib/types/NoteRS';
+import { Row } from 'reactstrap';
+import { Tag } from '../lib/types/Tag';
+import { Link } from 'react-router-dom';
+import CreateModal from './CreateModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../lib/redux/store';
+import { fetchNotesService } from '../services/fetchNotesService';
 
 export default function Note() {
-    const [notes, setNotes] = React.useState<NoteRS[]>([]);
-    useEffect(() => {
-        console.log("Note component mounted");
-        const fetchNotes = async () => {
-            try {
-                const response = await axios.get("/api/v1/notes");
-                return response.status === 200 ? response.data : [];
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchNotes().then((data) => setNotes(data)).catch((error) => console.log(error));
-        return () => {
-            console.log("Note component unmounted");
-        }
-    }, []);
-    return (
-        <div className="container m-4">
-            {notes.map(note => (
-                <div className="card" style={{width: "18rem"}} key={note.id}>
-                    <div className="card-body">
-                        <h5 className="card-title">{note.title}</h5>
-                        <h6 className="card-subtitle mb-2 text-body-secondary">Tags will be added later</h6>
-                        <p className="card-text">{note.content}</p>
-                        <a href="#" className="card-link">Edit</a>
-                        <a href="#" className="card-link">Delete</a>
-                    </div>
-                </div>
-            ))}
-        </div>
+  const [hover, setHover] = useState(false);
 
-    );
+  const dispatch: AppDispatch = useDispatch();
+
+  useEffect(() => {
+    console.log('Note component mounted');
+    dispatch(fetchNotesService());
+    return () => {
+      console.log('Note component unmounted');
+    };
+  }, []);
+
+  const toggleHover = () => setHover(!hover);
+
+  const notes: NoteRS[] = useSelector((state: RootState) => state.notes);
+
+  const style:
+    | { backgroundColor: string }
+    | {
+        color: string;
+      } = hover
+    ? { backgroundColor: 'rgb(25, 135, 84) !important' }
+    : { color: 'initial' };
+
+  const NoteCard = ({ note }: { note: NoteRS }) => (
+    <div className="col">
+      <div
+        className="card "
+        style={{ width: '18rem', height: '15rem' }}
+        key={note.id}
+      >
+        <div className="card-body">
+          <h5 className="card-title">{note.title}</h5>
+          <div className={'row'}>
+            {note.tags &&
+              note.tags.map((tag: Tag) => (
+                <h6
+                  className="card-subtitle mb-2 text-body-secondary col-2"
+                  key={tag.id}
+                  onMouseEnter={toggleHover}
+                  onMouseLeave={toggleHover}
+                >
+                  <Link
+                    className="badge rounded-pill text-bg-secondary text-decoration-none"
+                    style={style}
+                    to={`/tag/${tag.id}`}
+                  >
+                    {tag.name}
+                  </Link>
+                </h6>
+              ))}
+          </div>
+          <p className="card-text">{note.content}</p>
+          <a href="#" className="card-link">
+            Edit
+          </a>
+          <a href="#" className="card-link">
+            Delete
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="container overflow-hidden m-4">
+      <CreateModal />
+      <Row className={'g-3'}>
+        {notes.map((note: NoteRS) => (
+          // <CardColumns className={'m-2'} key={note.id}>
+          <NoteCard note={note} key={note.id} />
+          // </CardColumns>
+        ))}
+      </Row>
+    </div>
+  );
 }
