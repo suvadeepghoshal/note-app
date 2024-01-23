@@ -3,9 +3,9 @@ import { NoteRS } from '../lib/types/NoteRS';
 import { Row } from 'reactstrap';
 import { Tag } from '../lib/types/Tag';
 import { Link } from 'react-router-dom';
-import CreateModal from './CreateModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../lib/redux/store';
+import CreateModal from './CreateModal';
 import { fetchNotesService } from '../services/fetchNotesService';
 
 export default function Note() {
@@ -78,9 +78,7 @@ export default function Note() {
       <CreateModal />
       <Row className={'g-3'}>
         {notes.map((note: NoteRS) => (
-          // <CardColumns className={'m-2'} key={note.id}>
           <NoteCard note={note} key={note.id} />
-          // </CardColumns>
         ))}
       </Row>
     </div>
