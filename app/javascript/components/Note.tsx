@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NoteRS } from '../lib/types/NoteRS';
-import { CardColumns, Row } from 'reactstrap';
+import { Row } from 'reactstrap';
 import { Tag } from '../lib/types/Tag';
 import { Link } from 'react-router-dom';
 import CreateModal from './CreateModal';
@@ -34,47 +34,53 @@ export default function Note() {
     : { color: 'initial' };
 
   const NoteCard = ({ note }: { note: NoteRS }) => (
-    <div className="card" style={{ width: '18rem' }} key={note.id}>
-      <div className="card-body">
-        <h5 className="card-title">{note.title}</h5>
-        <div className={'row'}>
-          {note.tags &&
-            note.tags.map((tag: Tag) => (
-              <h6
-                className="card-subtitle mb-2 text-body-secondary col-2"
-                key={tag.id}
-                onMouseEnter={toggleHover}
-                onMouseLeave={toggleHover}
-              >
-                <Link
-                  className="badge rounded-pill text-bg-secondary text-decoration-none"
-                  style={style}
-                  to={`/tag/${tag.id}`}
+    <div className="col">
+      <div
+        className="card "
+        style={{ width: '18rem', height: '15rem' }}
+        key={note.id}
+      >
+        <div className="card-body">
+          <h5 className="card-title">{note.title}</h5>
+          <div className={'row'}>
+            {note.tags &&
+              note.tags.map((tag: Tag) => (
+                <h6
+                  className="card-subtitle mb-2 text-body-secondary col-2"
+                  key={tag.id}
+                  onMouseEnter={toggleHover}
+                  onMouseLeave={toggleHover}
                 >
-                  {tag.name}
-                </Link>
-              </h6>
-            ))}
+                  <Link
+                    className="badge rounded-pill text-bg-secondary text-decoration-none"
+                    style={style}
+                    to={`/tag/${tag.id}`}
+                  >
+                    {tag.name}
+                  </Link>
+                </h6>
+              ))}
+          </div>
+          <p className="card-text">{note.content}</p>
+          <a href="#" className="card-link">
+            Edit
+          </a>
+          <a href="#" className="card-link">
+            Delete
+          </a>
         </div>
-        <p className="card-text">{note.content}</p>
-        <a href="#" className="card-link">
-          Edit
-        </a>
-        <a href="#" className="card-link">
-          Delete
-        </a>
       </div>
     </div>
   );
 
   return (
-    <div className="container m-4">
+    <div className="container overflow-hidden m-4">
       <CreateModal />
-      <Row>
+      <Row className={'g-3'}>
         {notes.map((note: NoteRS) => (
-          <CardColumns className={'m-2'} key={note.id}>
-            <NoteCard note={note} />
-          </CardColumns>
+          // <CardColumns className={'m-2'} key={note.id}>
+          <NoteCard note={note} key={note.id} />
+          // </CardColumns>
         ))}
       </Row>
     </div>
