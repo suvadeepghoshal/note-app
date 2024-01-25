@@ -107,7 +107,6 @@ export default function Note() {
         <Toast show={showToast} onClose={() => setShowToast(false)}>
           <Toast.Header>
             <strong className="me-auto">Information!</strong>
-            <small></small>
           </Toast.Header>
           <Toast.Body>{message}</Toast.Body>
         </Toast>
