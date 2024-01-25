@@ -8,9 +8,14 @@ import { AppDispatch, RootState } from '../lib/redux/store';
 import CreateModal from './CreateModal';
 import { fetchNotesService } from '../services/fetchNotesService';
 import { deleteNoteService } from '../services/deleteNoteService';
+import { CommonRS } from '../lib/types/CommonRS';
+import Toast from 'react-bootstrap/Toast';
+import { ToastContainer } from 'react-bootstrap';
 
 export default function Note() {
   const [hover, setHover] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [message, setMessage] = useState<string>('');
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -35,10 +40,16 @@ export default function Note() {
     : { color: 'initial' };
 
   const handleDeleteClick = async (id: number) => {
-    const result = await dispatch(deleteNoteService(id));
+    const result: CommonRS = await dispatch(deleteNoteService(id));
     if (result.type === 'info') dispatch(fetchNotesService());
     else {
-      // TODO: error toast on the page
+      if (result?.message?.length) {
+        setMessage(result.message);
+        setShowToast(true);
+      }
+      setTimeout(() => {
+        setShowToast((prevState) => !prevState);
+      }, 2000);
     }
   };
 
@@ -88,11 +99,27 @@ export default function Note() {
 
   return (
     <div className="container overflow-hidden m-4">
+      <ToastContainer
+        position={'top-center'}
+        className="p-3"
+        style={{ zIndex: 1 }}
+      >
+        <Toast show={showToast} onClose={() => setShowToast(false)}>
+          <Toast.Header>
+            <strong className="me-auto">Information!</strong>
+            <small></small>
+          </Toast.Header>
+          <Toast.Body>{message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
       <CreateModal />
       <Row className={'g-3'}>
-        {notes.map((note: NoteRS) => (
-          <NoteCard note={note} key={note.id} />
-        ))}
+        {notes.map(
+          (note: NoteRS) =>
+            note.id && (
+              <NoteCard note={note} key={note.id ? note.id : 'default-key'} />
+            )
+        )}
       </Row>
     </div>
   );
