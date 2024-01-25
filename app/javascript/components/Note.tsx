@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../lib/redux/store';
 import CreateModal from './CreateModal';
 import { fetchNotesService } from '../services/fetchNotesService';
+import { deleteNoteService } from '../services/deleteNoteService';
 
 export default function Note() {
   const [hover, setHover] = useState(false);
@@ -32,6 +33,14 @@ export default function Note() {
       } = hover
     ? { backgroundColor: 'rgb(25, 135, 84) !important' }
     : { color: 'initial' };
+
+  const handleDeleteClick = async (id: number) => {
+    const result = await dispatch(deleteNoteService(id));
+    if (result.type === 'info') dispatch(fetchNotesService());
+    else {
+      // TODO: error toast on the page
+    }
+  };
 
   const NoteCard = ({ note }: { note: NoteRS }) => (
     <div className="col">
@@ -62,12 +71,16 @@ export default function Note() {
               ))}
           </div>
           <p className="card-text">{note.content}</p>
-          <a href="#" className="card-link">
+          <button type={'button'} className="btn btn-dark m-1">
             Edit
-          </a>
-          <a href="#" className="card-link">
+          </button>
+          <button
+            type={'button'}
+            className="btn btn-danger m-1"
+            onClick={() => handleDeleteClick(note.id)}
+          >
             Delete
-          </a>
+          </button>
         </div>
       </div>
     </div>

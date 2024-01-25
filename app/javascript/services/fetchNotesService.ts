@@ -11,7 +11,7 @@ export const fetchNotesService = () => {
       dispatch(fetchNotes(data));
     } catch (error) {
       return {
-        message: 'Can not retireve notes currently',
+        message: 'Can not retrieve notes currently',
         type: 'error',
       };
     }

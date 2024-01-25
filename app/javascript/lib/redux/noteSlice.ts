@@ -27,7 +27,12 @@ export const noteSlice = createSlice({
       return { ...state, notes: [...state.notes, action.payload] };
     },
     editNote: (_state, _action) => {},
-    deleteNote: (_state, _action) => {},
+    deleteNote: (state, action) => {
+      return {
+        ...state,
+        notes: state.notes.filter((note) => note.id !== action.payload),
+      };
+    },
   },
 });
 
