@@ -24,6 +24,16 @@ class Api::V1::NotesController < ApplicationController
     end
   end
 
+  def destroy
+    @deleted_note = Note.destroy(params[:id])
+    render json: { type: 'info', message: 'Note is successfully deleted', note: @deleted_note }, status: :ok
+  rescue StandardError => standard_error
+    render json: {
+      type: 'error',
+      message: standard_error.to_s,
+    }, status: :not_found
+  end
+
   private
 
   def note_params

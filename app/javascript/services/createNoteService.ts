@@ -1,9 +1,9 @@
 import { AppDispatch } from '../lib/redux/store';
 import axios from 'axios';
-import { NoteRS } from '../lib/types/NoteRS';
 import { NoteRQ } from '../lib/types/NoteRQ';
 import { Tag } from '../lib/types/Tag';
 import { createNote } from '../lib/redux/noteSlice';
+import { CommonRS } from '../lib/types/CommonRS';
 
 export const createNoteService = (data: NoteRQ) => {
   return async (dispatch: AppDispatch) => {
@@ -22,7 +22,7 @@ export const createNoteService = (data: NoteRQ) => {
             ?.getAttribute('content'),
         },
       });
-      const response: NoteRS = result.status === 200 && result.data;
+      const response: CommonRS = result.status === 200 && result.data;
       if (response?.type === 'error')
         return { type: response?.type, message: response?.message };
       else {
