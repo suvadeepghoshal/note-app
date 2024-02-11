@@ -11,6 +11,8 @@ import { deleteNoteService } from '../services/deleteNoteService';
 import { CommonRS } from '../lib/types/CommonRS';
 import Toast from 'react-bootstrap/Toast';
 import { ToastContainer } from 'react-bootstrap';
+import { NoteRQ } from '../lib/types/NoteRQ';
+import { editNoteService } from '../services/editNoteService';
 
 export default function Note() {
   const [hover, setHover] = useState(false);
@@ -53,6 +55,29 @@ export default function Note() {
     }
   };
 
+  const handleEditClick = async (note: NoteRQ) => {
+    console.log(note);
+    try {
+      const result: CommonRS = await dispatch(editNoteService(note));
+      console.log(result);
+      if (result.type === undefined && result.message) {
+        setMessage(result.message);
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast((prevState) => !prevState);
+        }, 2000);
+      }
+    } catch (error: any) {
+      if (error.message.length) {
+        setMessage(error.message);
+        setShowToast(true);
+      }
+      setTimeout(() => {
+        setShowToast((prevState) => !prevState);
+      }, 2000);
+    }
+  };
+
   const NoteCard = ({ note }: { note: NoteRS }) => (
     <div className="col">
       <div
@@ -82,7 +107,11 @@ export default function Note() {
               ))}
           </div>
           <p className="card-text">{note.content}</p>
-          <button type={'button'} className="btn btn-dark m-1">
+          <button
+            type={'button'}
+            className="btn btn-dark m-1"
+            onClick={() => handleEditClick(note)}
+          >
             Edit
           </button>
           <button

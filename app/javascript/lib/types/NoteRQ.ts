@@ -1,7 +1,8 @@
-import {Tag} from "./Tag";
+import { Tag } from './Tag';
 
 export interface NoteRQ {
-    title: string;
-    content: string;
-    tags: Tag[]
+  id?: number;
+  title: string;
+  content: string;
+  tags: Tag[];
 }

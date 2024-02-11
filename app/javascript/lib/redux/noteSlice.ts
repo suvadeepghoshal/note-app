@@ -10,8 +10,6 @@ const initialState: { notes: NoteRS[] } = {
       created_at: '',
       updated_at: '',
       tags: [],
-      message: '',
-      type: '',
     },
   ],
 };
@@ -26,7 +24,14 @@ export const noteSlice = createSlice({
     createNote: (state, action) => {
       return { ...state, notes: [...state.notes, action.payload] };
     },
-    editNote: (_state, _action) => {},
+    editNote: (state, action) => {
+      return {
+        ...state,
+        notes: state.notes.map((note) =>
+          note.id === action.payload.id ? action.payload : note
+        ),
+      };
+    },
     deleteNote: (state, action) => {
       return {
         ...state,
