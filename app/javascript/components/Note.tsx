@@ -90,7 +90,6 @@ export default function Note() {
 
   const showEditModal = (note: NoteRQ) => {
     setCurrNote(note);
-    // setToggleEditModal(true); // might use of session to control the props from the children or use redux to update a common val in the store
     dispatch(toggleModalService({ name: 'edit-note-modal', visible: true }));
   };
 

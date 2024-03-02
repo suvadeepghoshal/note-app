@@ -87,7 +87,7 @@ const EditModalBody = () => {
 
   const handleClose = () => {
     reset();
-    // setShow(false);
+
     dispatch(toggleModalService({ name: 'edit-note-modal', visible: false }));
     dispatch(fetchNotesService());
   };
