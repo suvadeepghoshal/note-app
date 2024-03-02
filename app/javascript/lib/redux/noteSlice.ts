@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { NoteRS } from '../types/NoteRS';
+import { CommonRS } from '../types/CommonRS';
 
-const initialState: { notes: NoteRS[] } = {
+const initialState: CommonRS = {
   notes: [
     {
       id: -1,
@@ -12,6 +12,7 @@ const initialState: { notes: NoteRS[] } = {
       tags: [],
     },
   ],
+  modal: { name: '', visible: false },
 };
 
 export const noteSlice = createSlice({
@@ -22,12 +23,12 @@ export const noteSlice = createSlice({
       return { ...state, notes: action.payload };
     },
     createNote: (state, action) => {
-      return { ...state, notes: [...state.notes, action.payload] };
+      return { ...state, notes: [...state.notes!, action.payload] };
     },
     editNote: (state, action) => {
       return {
         ...state,
-        notes: state.notes.map((note) =>
+        notes: state.notes?.map((note) =>
           note.id === action.payload.id ? action.payload : note
         ),
       };
@@ -35,13 +36,19 @@ export const noteSlice = createSlice({
     deleteNote: (state, action) => {
       return {
         ...state,
-        notes: state.notes.filter((note) => note.id !== action.payload),
+        notes: state.notes?.filter((note) => note.id !== action.payload),
+      };
+    },
+    toggleModal: (state, action) => {
+      return {
+        ...state,
+        modal: action.payload,
       };
     },
   },
 });
 
-export const { fetchNotes, createNote, editNote, deleteNote } =
+export const { fetchNotes, createNote, editNote, deleteNote, toggleModal } =
   noteSlice.actions;
 
 export default noteSlice.reducer;

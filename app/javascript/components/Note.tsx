@@ -1,23 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { NoteRS } from '../lib/types/NoteRS';
-import { Row } from 'reactstrap';
-import { Tag } from '../lib/types/Tag';
-import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../lib/redux/store';
-import CreateModal from './CreateModal';
-import { fetchNotesService } from '../services/fetchNotesService';
-import { deleteNoteService } from '../services/deleteNoteService';
-import { CommonRS } from '../lib/types/CommonRS';
-import Toast from 'react-bootstrap/Toast';
-import { ToastContainer } from 'react-bootstrap';
 import { NoteRQ } from '../lib/types/NoteRQ';
+import { AppDispatch, RootState } from '../lib/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchNotesService } from '../services/fetchNotesService';
+import { NoteRS } from '../lib/types/NoteRS';
+import { CommonRS } from '../lib/types/CommonRS';
+import { deleteNoteService } from '../services/deleteNoteService';
 import { editNoteService } from '../services/editNoteService';
+import { Tag } from '../lib/types/Tag';
+import { ToastContainer } from 'react-bootstrap';
+import Toast from 'react-bootstrap/Toast';
+import CreateModal from './CreateModal';
+import { NoteToBeEditedContext } from '../lib/contexts/noteToBeEditedContext';
+import { Row } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import EditModalBody from './EditModalBody';
+import { toggleModalService } from '../services/toggleModalService';
 
 export default function Note() {
   const [hover, setHover] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [message, setMessage] = useState<string>('');
+  const [currNote, setCurrNote] = useState<NoteRQ>({
+    id: 0,
+    title: '',
+    content: '',
+    tags: [],
+  });
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -29,9 +38,11 @@ export default function Note() {
     };
   }, []);
 
-  const toggleHover = () => setHover(!hover);
+  const toggleHover = () => setHover(!hover); // TODO: the tags hover is still not working.
 
-  const notes: NoteRS[] = useSelector((state: RootState) => state.notes);
+  const notes: NoteRS[] = useSelector((state: RootState) => state.notes)!;
+
+  const modalConfig = useSelector((state: RootState) => state.modal);
 
   const style:
     | { backgroundColor: string }
@@ -56,7 +67,6 @@ export default function Note() {
   };
 
   const handleEditClick = async (note: NoteRQ) => {
-    console.log(note);
     try {
       const result: CommonRS = await dispatch(editNoteService(note));
       console.log(result);
@@ -76,6 +86,12 @@ export default function Note() {
         setShowToast((prevState) => !prevState);
       }, 2000);
     }
+  };
+
+  const showEditModal = (note: NoteRQ) => {
+    setCurrNote(note);
+    // setToggleEditModal(true); // might use of session to control the props from the children or use redux to update a common val in the store
+    dispatch(toggleModalService({ name: 'edit-note-modal', visible: true }));
   };
 
   const NoteCard = ({ note }: { note: NoteRS }) => (
@@ -110,7 +126,7 @@ export default function Note() {
           <button
             type={'button'}
             className="btn btn-dark m-1"
-            onClick={() => handleEditClick(note)}
+            onClick={() => showEditModal(note)}
           >
             Edit
           </button>
@@ -141,6 +157,11 @@ export default function Note() {
         </Toast>
       </ToastContainer>
       <CreateModal />
+      {modalConfig?.visible && (
+        <NoteToBeEditedContext.Provider value={currNote}>
+          <EditModalBody />
+        </NoteToBeEditedContext.Provider>
+      )}
       <Row className={'g-3'}>
         {notes.map(
           (note: NoteRS) =>
