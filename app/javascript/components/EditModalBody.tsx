@@ -15,6 +15,11 @@ const EditModalBody = () => {
   console.log('EditModalBody component mounted');
   const noteToBeEdited: NoteRQ = useContext(NoteToBeEditedContext);
 
+  const [currNote, setCurrNote]: [
+    NoteRQ,
+    (value: ((prevState: NoteRQ) => NoteRQ) | NoteRQ) => void,
+  ] = useState<NoteRQ>(noteToBeEdited);
+
   const {
     register,
     handleSubmit,
@@ -23,9 +28,9 @@ const EditModalBody = () => {
     reset,
   } = useForm<NoteRQ>({
     defaultValues: {
-      title: noteToBeEdited.title,
-      content: noteToBeEdited.content,
-      tags: noteToBeEdited.tags,
+      title: currNote.title,
+      content: currNote.content,
+      tags: currNote.tags,
     },
   });
 
@@ -40,7 +45,7 @@ const EditModalBody = () => {
 
   const onSubmit: SubmitHandler<NoteRQ> = async (note: NoteRQ) => {
     try {
-      note.id = noteToBeEdited.id;
+      note.id = currNote.id;
       const result: CommonRS = await dispatch(editNoteService(note));
       if (result.type === undefined && result.message) {
         setAlertProp({
@@ -97,7 +102,7 @@ const EditModalBody = () => {
       <Modal show={modalConfig?.visible} onHide={handleClose}>
         <Form onSubmit={handleSubmit(onSubmit)} noValidate={true}>
           <Modal.Header closeButton>
-            <Modal.Title>Editing note {noteToBeEdited.id}</Modal.Title>
+            <Modal.Title>Editing note {currNote.id}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {alertProp.alertType.length > 0 && (
@@ -115,8 +120,12 @@ const EditModalBody = () => {
                     value: 20,
                     message: 'Maximum accepted length is 20',
                   },
-                  onChange: (e) => (noteToBeEdited.title = e.target.value!),
-                  value: noteToBeEdited?.title,
+                  onChange: (e) =>
+                    setCurrNote((prevNote: NoteRQ) => ({
+                      ...prevNote,
+                      title: e.target.value,
+                    })),
+                  value: currNote?.title,
                 })}
               />
             </Form.Group>
@@ -132,8 +141,12 @@ const EditModalBody = () => {
                 rows={3}
                 {...register('content', {
                   required: { value: true, message: 'Content is required' },
-                  onChange: (e) => (noteToBeEdited.content = e.target.value!),
-                  value: noteToBeEdited?.content,
+                  onChange: (e) =>
+                    setCurrNote((prevNote: NoteRQ) => ({
+                      ...prevNote,
+                      content: e.target.value,
+                    })),
+                  value: currNote?.content,
                 })}
               />
             </Form.Group>
@@ -149,7 +162,7 @@ const EditModalBody = () => {
                     <input
                       className={'form-control'}
                       {...register(`tags.${index}.name`, {
-                        value: noteToBeEdited?.tags[index]?.name || 'enter tag',
+                        value: currNote?.tags[index]?.name || 'enter tag',
                       })}
                     />
                   </div>
